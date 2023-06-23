@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor
 import os
 import math
 from scipy.spatial.distance import pdist
@@ -10,6 +9,7 @@ from sympy import symbols, Eq, solve
 import pandas as pd
 from sklearn.neighbors import KernelDensity
 
+
 class Illuminant_estimation():
 
     def __init__(self):
@@ -17,8 +17,10 @@ class Illuminant_estimation():
         self.corrected_images = []
         self.groundtruth_images = []
         self.data_images = []
-        self.data_groundtruth = []
-        self.regression_trees = []
+        self.r_groundtruth = []
+        self.g_groundtruth = []
+        self.r_trees = []
+        self.g_trees = []
         self.ruta_images = os.path.abspath("galaxy")
         self.load_images()
 
@@ -55,7 +57,8 @@ class Illuminant_estimation():
         # Cargar datos groundtruth
         datos = pd.read_csv('data_2_illuminant.csv', header=None)
         RGB_values = datos.values
-        self.data_groundtruth = [(r / (r + g + b), g / (r + g + b)) for r, g, b in RGB_values]
+        groundtruth = [(r / (r + g + b), g / (r + g + b)) for r, g, b in RGB_values]
+        self.r_groundtruth, self.g_groundtruth = zip(*groundtruth)
 
     def regression_tree_training(self, num_trees=30):
         self.load_data()
@@ -63,30 +66,35 @@ class Illuminant_estimation():
         for image in self.data_images:
             features.append(self.extract_features(image))
 
-        self.regression_trees = []
+        self.r_trees = []
+        self.g_trees = []
         for i in range(num_trees):
-            tree = RandomForestRegressor()
-            tree.fit(features, self.data_groundtruth)
-            self.regression_trees.append(tree)
+            r_tree = DecisionTreeRegressor()
+            g_tree = DecisionTreeRegressor()
+            r_tree.fit(features, self.r_groundtruth)
+            g_tree.fit(features, self.g_groundtruth)
+            self.r_trees.append(r_tree)
+            self.g_trees.append(g_tree)
 
     def regression_tree_method(self):
-        if not self.regression_trees:
-            self.regression_tree_training(1)
+        if not self.r_trees or not self.g_trees:
+            self.regression_tree_training(10)
         img = self.images[9]
         sub_images = self.divide_image(img)
         points_rg = []
         for sub in sub_images:
             partial_res = []
-            for tree in self.regression_trees:
-                partial_res.append(tree.predict(self.extract_features(sub)))
+            feature = self.extract_features(sub)
+            for tree_r, tree_g in zip(self.r_trees, self.g_trees):
+                res_r = tree_r.predict([feature])[0]
+                res_g = tree_g.predict([feature])[0]
+                partial_res.append((res_r, res_g))
             if np.var(partial_res) <= 0.0001:
-                points_rg.append(np.median(partial_res))
+                points_rg.append(self.median(partial_res))
         if not points_rg:
             print("Ningun arbol ha sido valido")
         else:
             self.result(img, points_rg, "RegressionTreePrimera_Version")
-
-
 
     def divide_image(self, img, sub_height=15, sub_width=20):
         height, width, channels = img.shape
@@ -301,31 +309,11 @@ class Illuminant_estimation():
         dominant_chromaticity = np.array([max_idx // (256 * 256), (max_idx // 256) % 256]) / 255
 
         # Calculamos la cromaticidad de la moda
-        chromaticity_mode = self.calculate_chromaticity_mode(img_rgb)
+        palette = np.column_stack((r.flatten(), g.flatten(), b.flatten()))
+        color_counts = np.bincount(palette.argmax(axis=1))
+        color_mode = np.array([np.argmax(color_counts) // 3, np.argmax(color_counts) % 3])
+        chromaticity_mode = color_mode / 255
 
         features = np.concatenate((avg_chromaticity, brightest_chromaticity, dominant_chromaticity, chromaticity_mode))
 
         return features
-
-    def calculate_chromaticity_mode(self, image_rgb):
-        # Construir la paleta de colores
-        num_bins = 300
-        hist, _ = np.histogramdd(image_rgb.reshape(-1, 3), bins=num_bins, range=[(0, 255), (0, 255), (0, 255)])
-
-        # Obtener los colores de la paleta con más de un umbral de píxeles
-        threshold = 200
-        palette_colors = np.argwhere(hist > threshold)
-        color_palette = palette_colors.mean(axis=1)
-
-        # Normalizar los colores de la paleta
-        normalized_palette = color_palette / np.sum(color_palette, axis=1, keepdims=True)
-
-        # Estimar la densidad de kernel de las cromaticidades
-        kde = KernelDensity(kernel='gaussian').fit(normalized_palette)
-        density_scores = kde.score_samples(normalized_palette)
-
-        # Encontrar el punto con la mayor densidad estimada
-        mode_index = np.argmax(density_scores)
-        chromaticity_mode = normalized_palette[mode_index]
-
-        return chromaticity_mode
