@@ -89,7 +89,8 @@ class Illuminant_estimation():
                 res_r = tree_r.predict([feature])[0]
                 res_g = tree_g.predict([feature])[0]
                 partial_res.append((res_r, res_g))
-            if np.var(partial_res) <= 0.0001:
+            var = np.var(partial_res)
+            if var <= 0.001:
                 points_rg.append(self.median(partial_res))
         if not points_rg:
             print("Ningun arbol ha sido valido")
