@@ -1,4 +1,8 @@
 # TFG - Balance de blancos en fotografía cuando hay más de una iluminación
+### Código
+- main.py
+- tfg.py
+- recortar.py
 ### Requisitos
 - matplotlib==3.7.1
 - opencv-python==4.6.0.66
