@@ -10,9 +10,15 @@
   <li>
     <strong>recortar.py:</strong> Se utiliza para obtener y guardar las cordenadas de los puntos de las distintas imagenes.
   </li>
+    <li>
+    <strong>recortar.py:</strong> Se utiliza para obtener y guardar las cordenadas de los puntos de las distintas imagenes.
+  </li>
+    <li>
+    <strong>data.csv:</strong> Contiene los iluminantes en RGB de todas las imagenes del dataset de ColorChecker
+  </li>
 </ul>
 
-### Requisitos
+<h2>Requisitos</h2>
 - matplotlib==3.7.1
 - opencv-python==4.6.0.66
 - pandas
@@ -20,7 +26,8 @@
 - rawpy==0.18.1
 - scikit-image==0.20.0
 - seaborn==0.12.2
-### Datasets
+
+<h2>Datasets</h2>
 Lista de los datasets utilizados:
 - Dataset Galaxy: [Galaxy](https://docs.google.com/forms/d/e/1FAIpQLSebVNC_lBq1K-UgKpp2G2A5nUygbY_qWmaaO3vDOA9yV2zbUA/viewform)
 - Dataset ColorChecker: [ColorChecker](https://drive.google.com/drive/folders/1tKrL3pMV1tdAEtmeWGKlHoUU6UfpUSKZ)
