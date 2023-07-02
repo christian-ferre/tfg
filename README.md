@@ -1,8 +1,11 @@
 # TFG - Balance de blancos en fotografía cuando hay más de una iluminación
 ### Código
 - main.py
+Crea una variable de Illuminant_estimation(), ejecuta la función de guardar los resultados y compararlos.
 - tfg.py
+Contiene la declaracion  de la clase Illuminant_estimation().
 - recortar.py
+Se utiliza para obtener y guardar los puntos de las distintas imagenes.
 ### Requisitos
 - matplotlib==3.7.1
 - opencv-python==4.6.0.66
