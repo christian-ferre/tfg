@@ -18,7 +18,19 @@
   </li>
 </ul>
 
+<h2>Carpetas</h2>
+<ul>
+  <li>
+    <strong>Resultados:</strong> Guarda las imágenes corregidas de cada uno de los métodos.
+  </li>
+  <li>
+    <strong>Puntos:</strong> Contiene las cordenadas de todos los colores en todas las imagenes que se utilizan para la evaluación de los modelos.
+  </li>
+</ul>
+
+
 <h2>Requisitos</h2>
+
 - matplotlib==3.7.1
 - opencv-python==4.6.0.66
 - pandas
