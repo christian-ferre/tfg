@@ -11,6 +11,7 @@
     <strong>recortar.py:</strong> Se utiliza para obtener y guardar las cordenadas de los puntos de las distintas imagenes.
   </li>
 </ul>
+
 ### Requisitos
 - matplotlib==3.7.1
 - opencv-python==4.6.0.66
